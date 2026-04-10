@@ -63,40 +63,58 @@ Return an array of size 2 containing the indices of the two numbers
 whose sum equals target.
 */
 int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
-    /* Write your code here */
+    Node* table[TABLE_SIZE] = {NULL};
+
+    for (int i = 0; i < numsSize; i++) {
+        int complement = target - nums[i];
+        int j;
+        if (find(table, complement, &j)) {
+            freeTable(table);
+            int* result = malloc(2 * sizeof(int));
+            result[0] = j;
+            result[1] = i;
+            *returnSize = 2;
+            return result;
+        }
+        insert(table, nums[i], i);
+    }
 
     *returnSize = 0;
     return NULL;
 }
 
-/*
-Optional helper: compute a hash index for a key.
-*/
 static int hash(int key) {
-    /* Write your code here if you use this helper */
-    return 0;
+    unsigned int k = (unsigned int)key;
+    return (int)(k % TABLE_SIZE);
 }
 
-/*
-Optional helper: insert (key, value) into the hash table.
-*/
 static void insert(Node* table[], int key, int value) {
-    /* Write your code here if you use this helper */
+    int idx = hash(key);
+    Node* node = malloc(sizeof(Node));
+    node->key   = key;
+    node->value = value;
+    node->next  = table[idx];
+    table[idx]  = node;
 }
 
-/*
-Optional helper: search for key in the hash table.
-If found, store the associated value in *value and return 1.
-Otherwise return 0.
-*/
 static int find(Node* table[], int key, int* value) {
-    /* Write your code here if you use this helper */
+    int idx = hash(key);
+    for (Node* n = table[idx]; n != NULL; n = n->next) {
+        if (n->key == key) {
+            *value = n->value;
+            return 1;
+        }
+    }
     return 0;
 }
 
-/*
-Optional helper: free all memory used by the hash table.
-*/
 static void freeTable(Node* table[]) {
-    /* Write your code here if you use this helper */
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* n = table[i];
+        while (n != NULL) {
+            Node* next = n->next;
+            free(n);
+            n = next;
+        }
+    }
 }
